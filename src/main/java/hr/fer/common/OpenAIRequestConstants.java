@@ -9,9 +9,6 @@ public class OpenAIRequestConstants {
     @Value("${openai.model}")
     public String MODEL;
 
-    @Value("${openai.api.key}")
-    public String API_KEY;
-
     @Value("${openai.api.url}")
     public String API_URL;
 }
