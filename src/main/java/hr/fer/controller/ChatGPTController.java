@@ -2,6 +2,7 @@ package hr.fer.controller;
 
 import hr.fer.common.ApiPaths;
 import hr.fer.common.OpenAIRequestConstants;
+import hr.fer.dto.PuzzleDto;
 import hr.fer.dto.PuzzleTypeInfoDto;
 import hr.fer.dto.openai.ChatGPTRequest;
 import hr.fer.dto.openai.ChatGPTResponse;
@@ -29,11 +30,13 @@ public class ChatGPTController {
     }
 
     @PostMapping(ApiPaths.GENERATE_PUZZLE)
-    public ChatGPTResponse generatePuzzle(@RequestBody PuzzleTypeInfoDto puzzleTypeInfo) {
+    public PuzzleDto generatePuzzle(@RequestBody PuzzleTypeInfoDto puzzleTypeInfo) {
         String prompt = puzzleService.createPrompt(puzzleTypeInfo);
 
         ChatGPTRequest request = new ChatGPTRequest(openAIRequestConstants.MODEL, prompt);
         ChatGPTResponse response = restTemplate.postForObject(openAIRequestConstants.API_URL, request, ChatGPTResponse.class);
-        return response;
+
+        PuzzleDto puzzle = puzzleService.createPuzzle(response);
+        return puzzle;
     }
 }
