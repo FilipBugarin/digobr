@@ -1,9 +1,9 @@
 package hr.fer.common;
 
 public enum PuzzleDifficulty {
-    EASY(1, "lako"),
-    MEDIUM(2, "normalno"),
-    HARD(3, "teško");
+    EASY(1, "easy"),
+    MEDIUM(2, "medium"),
+    HARD(3, "hard");
 
     private final int difficulty;
     private final String description;

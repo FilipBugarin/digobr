@@ -1,9 +1,9 @@
 package hr.fer.common;
 
 public enum PuzzleTopic {
-    GENERAL(1, "general"),
+    GENERAL(1, "general knowledge"),
     SPORT(2, "sport"),
-    HISTORY(3, "povijest");
+    HISTORY(3, "history");
 
     private final int topicNumber;
     private final String topicName;

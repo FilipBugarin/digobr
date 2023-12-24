@@ -1,5 +1,6 @@
 package hr.fer.services;
 
+import hr.fer.common.ChatGptPrompts;
 import hr.fer.common.PuzzleDifficulty;
 import hr.fer.dto.PuzzleDto;
 import hr.fer.dto.PuzzleTypeInfoDto;
@@ -7,10 +8,9 @@ import hr.fer.dto.Word;
 import hr.fer.dto.openai.ChatGPTResponse;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class PuzzleService {
@@ -21,37 +21,49 @@ public class PuzzleService {
     public static int direction = 0;
 
     public static List<PuzzleDto> allPuzzles = new ArrayList<PuzzleDto>();
+    public static List<int[]> borderIndexList = new ArrayList<>();
 
     public static int mL;
     public static int mT;
+    public static int bestPuzzleIndex;
+    public static Map<String, String> generatedWordsAndClues = new LinkedHashMap<>();
 
     public String createPrompt(PuzzleTypeInfoDto puzzleTypeInfo) {
-        //TODO: formiraj prompt koristeci podatke iz PuzzleTypeInfoDto
 
-        //testni prompt
-        String prompt;
-        if(puzzleTypeInfo.getDifficulty() == PuzzleDifficulty.EASY) {
-            prompt = "When was Leonardo da Vinci born?";
-        } else {
-            prompt = "When did Leonardo da Vinci die?";
-        }
+        String prompt = String.format(ChatGptPrompts.CHAT_GPT_PROMPT_1,
+                puzzleTypeInfo.getTopic().getTopicName(), puzzleTypeInfo.getDifficulty().getDescription());
+        System.out.println("PROMPT:");
+        System.out.println(prompt);
         return prompt;
     }
 
-    public PuzzleDto createPuzzle(ChatGPTResponse response) {
+    public PuzzleDto createPuzzle(ChatGPTResponse response, boolean testPuzzle) {
         allPuzzles.clear();
+        borderIndexList.clear();
+        generatedWordsAndClues.clear();
+
         initializeEmptyPuzzle();
 
         List<String> wordList = new ArrayList<>();
         List<String[][]> listOfPuzzles = new ArrayList<>();
         List<String> questions = getQuestions(response);
         List<String> answers = getAnswers(response);
+        if(!testPuzzle) {
+            extractPuzzleDataFromResponse(response);
+        }
 
-        //TODO: povecaj na npr. 100 (generira vise krizaljki i onda trazi najbolju) - ako se generira vise krizaljki, treba popraviti formatPuzzle()
-        for(int i = 0; i < 1; i++) {
+        for(int i = 0; i < 20; i++) {
             initializeEmptyPuzzle();
             wordList.clear();
-            generateWords(wordList, response);
+            if (testPuzzle) {
+                generateTestWords(wordList);
+            } else {
+                generateWords(wordList);
+                if(wordList.size()<10) {
+                    wordList.clear();
+                    generateTestWords(wordList);
+                }
+            }
             Collections.shuffle(wordList);
             listOfPuzzles.add(generatePuzzle(wordList));
         }
@@ -59,13 +71,11 @@ public class PuzzleService {
         String[][] bestPuzzle = evaluatePuzzles(listOfPuzzles);
         printPuzzle(bestPuzzle);
 
-        System.out.println(mL);
-        System.out.println(mT);
+        mL = borderIndexList.get(bestPuzzleIndex)[0];
+        mT = borderIndexList.get(bestPuzzleIndex)[1];
 
-        formatPuzzle();
-        return allPuzzles.get(0);
-
-        //return new PuzzleDto(bestPuzzle, questions, answers);
+        formatPuzzle(bestPuzzleIndex);
+        return allPuzzles.get(bestPuzzleIndex);
     }
 
     private static void initializeEmptyPuzzle() {
@@ -85,8 +95,7 @@ public class PuzzleService {
         return new ArrayList<>();
     }
 
-    private static void generateWords(List<String> wordList, ChatGPTResponse response) {
-        //TODO: iz response izvaditi rijeci koje je chatGPT generirao i ubaciti ih u listu
+    private static void generateTestWords(List<String> wordList) {
 
         //testni skup rijeci 1
         wordList.add("Banana".toUpperCase());
@@ -109,6 +118,38 @@ public class PuzzleService {
         wordList.add("Jagoda".toUpperCase());
         wordList.add("Balon".toUpperCase());
         wordList.add("Prijatelj".toUpperCase());
+
+    }
+
+    private static void generateWords(List<String> wordList) {
+
+        int count = 0;
+        for(Map.Entry<String, String> entry : generatedWordsAndClues.entrySet()) {
+            wordList.add(entry.getKey().toUpperCase());
+            count++;
+            if(count>=20) break;
+        }
+    }
+
+
+    private static void extractPuzzleDataFromResponse(ChatGPTResponse response) {
+
+        String responseData = null;
+        Map<String, String> wordsAndClues;
+
+        boolean responseOK = checkResponse(response);
+        try {
+            if(responseOK) {
+                responseData = extractData(response);
+                System.out.println("RESPONSE:");
+                System.out.println(responseData);
+            }
+            wordsAndClues = extractWordsAndClues(responseData);
+        } catch (Exception e) {
+            throw new RuntimeException("Dogodila se greška kod generiranja pojmova.");
+        }
+
+        generatedWordsAndClues = wordsAndClues;
 
     }
 
@@ -145,14 +186,14 @@ public class PuzzleService {
                                     w.startPosition = new int[]{i, j - c};
                                     w.endPosition = new int[]{i, (j -c) + word.length()};
                                     w.vertical = false;
-                                    w.desc = "TODO";
+                                    w.desc = generatedWordsAndClues.get(word);
                                 }
                                 if(direction == 2) {
                                     placeVertical(j, i-c, word);
                                     w.startPosition = new int[]{i-c, j};
                                     w.endPosition = new int[]{i + word.length(), j -c};
                                     w.vertical = true;
-                                    w.desc = "TODO";
+                                    w.desc = generatedWordsAndClues.get(word);
                                 }
                                 count++;
                                 wordList.remove(word);
@@ -177,6 +218,7 @@ public class PuzzleService {
         }
 
         String[][] generatedPuzzle = cutOut();
+        borderIndexList.add(new int[]{mL, mT});
         allPuzzles.add(p);
         return generatedPuzzle;
     }
@@ -225,7 +267,8 @@ public class PuzzleService {
         double bestScore = -100.0;
         String[][] bestPuzzle = null;
 
-        for(String[][] puzzle : allPuzzles) {
+        for(int i = 0; i < allPuzzles.size(); i++) {
+            String[][] puzzle = allPuzzles.get(i);
             double densityScore = calculateDensity(puzzle);
             //ocjena za kvadratnu dimenziju trenutno iskljucena - cini mi se da su bolje krizaljke bez te ocjene
             double squarenessScore = /*calculateSquareness(puzzle);*/ 0;
@@ -235,6 +278,7 @@ public class PuzzleService {
             if(totalScore > bestScore) {
                 bestScore = totalScore;
                 bestPuzzle = puzzle;
+                bestPuzzleIndex = i;
             }
         }
         return bestPuzzle;
@@ -408,17 +452,58 @@ public class PuzzleService {
         for (int i = 0; i < 5*(columns+1); i++) {System.out.print("-");}System.out.println();
     }
 
-    public static void formatPuzzle() {
-        for(PuzzleDto p : allPuzzles) {
-            for(Word w : p.puzzle) {
-                int[] newPosition = new int[]{w.startPosition[0] - mT, w.startPosition[1] - mL};
-                w.startPosition = newPosition;
-                if(w.vertical) {
-                    w.endPosition = new int[]{w.startPosition[0] + w.word.length()-1, w.startPosition[1]};
-                } else {
-                    w.endPosition = new int[]{w.startPosition[0], w.startPosition[1] + w.word.length()-1};
-                }
+    public static void formatPuzzle(int index) {
+        PuzzleDto p = allPuzzles.get(index);
+        for(Word w : p.puzzle) {
+            int[] newPosition = new int[]{w.startPosition[0] - mT, w.startPosition[1] - mL};
+            w.startPosition = newPosition;
+            if(w.vertical) {
+                w.endPosition = new int[]{w.startPosition[0] + w.word.length()-1, w.startPosition[1]};
+            } else {
+                w.endPosition = new int[]{w.startPosition[0], w.startPosition[1] + w.word.length()-1};
             }
         }
+    }
+
+    public static boolean checkResponse(ChatGPTResponse response) {
+        if(response.getChoices().isEmpty()) {
+            return false;
+        }
+        //todo: provjeri koji su sve moguci neispravni odgovori od chatGPTa
+        return true;
+    }
+
+    public static String extractData(ChatGPTResponse response) {
+        String responseData;
+
+        try {
+            String completeResponse = response.getChoices().get(0).getMessage().getContent();
+            completeResponse = completeResponse.toUpperCase();
+            String puzzleData = completeResponse.substring(completeResponse.indexOf("*START*")+7, completeResponse.indexOf("*END*"));
+            //System.out.println(puzzleData);
+            responseData = puzzleData;
+        } catch (Exception e) {
+            throw new RuntimeException("response nije u traženom formatu!" + response);
+        }
+        return responseData;
+    }
+
+    public static Map<String, String> extractWordsAndClues(String responseData) {
+        Map<String, String> wordsAndClues = new LinkedHashMap<>();
+
+        String regex = "(\\d+\\.\\s*([A-ZČĆŽŠĐ]+)):(.*?)\\n";
+
+        try {
+            Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+            Matcher matcher = pattern.matcher(responseData);
+
+            while (matcher.find()) {
+                wordsAndClues.put(matcher.group(2), matcher.group(3).trim());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Dogodila se greška kod formiranja rijeci za krizaljku.");
+        }
+
+        return wordsAndClues;
     }
 }

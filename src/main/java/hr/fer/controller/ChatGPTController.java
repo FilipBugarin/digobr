@@ -29,14 +29,35 @@ public class ChatGPTController {
         this.openAIRequestConstants = openAIRequestConstants;
     }
 
+    @PostMapping(ApiPaths.GENERATE_TEST_PUZZLE)
+    public PuzzleDto generateTestPuzzle(@RequestBody PuzzleTypeInfoDto puzzleTypeInfo) {
+        String prompt = puzzleService.createPrompt(puzzleTypeInfo);
+
+        ChatGPTRequest request = new ChatGPTRequest(openAIRequestConstants.MODEL, prompt);
+        ChatGPTResponse response = null;
+        try {
+            response = restTemplate.postForObject(openAIRequestConstants.API_URL, request, ChatGPTResponse.class);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        PuzzleDto puzzle = puzzleService.createPuzzle(response, true);
+        return puzzle;
+    }
+
     @PostMapping(ApiPaths.GENERATE_PUZZLE)
     public PuzzleDto generatePuzzle(@RequestBody PuzzleTypeInfoDto puzzleTypeInfo) {
         String prompt = puzzleService.createPrompt(puzzleTypeInfo);
 
         ChatGPTRequest request = new ChatGPTRequest(openAIRequestConstants.MODEL, prompt);
-        ChatGPTResponse response = restTemplate.postForObject(openAIRequestConstants.API_URL, request, ChatGPTResponse.class);
+        ChatGPTResponse response = null;
+        try {
+            response = restTemplate.postForObject(openAIRequestConstants.API_URL, request, ChatGPTResponse.class);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
 
-        PuzzleDto puzzle = puzzleService.createPuzzle(response);
+        PuzzleDto puzzle = puzzleService.createPuzzle(response, false);
         return puzzle;
     }
 }
