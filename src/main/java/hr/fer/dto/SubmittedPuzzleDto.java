@@ -16,7 +16,7 @@ public class SubmittedPuzzleDto {
     @JsonProperty("topic")
     private PuzzleTopic topic;
 
-    @JsonProperty("incorrectAnswers")
+    /*@JsonProperty("incorrectAnswers")
     private List<Word> incorrectAnswers;
 
     @Override
@@ -26,6 +26,15 @@ public class SubmittedPuzzleDto {
                 ", difficulty=" + difficulty +
                 ", topic=" + topic +
                 ", incorrectAnswers=" + incorrectAnswers +
+                '}';
+    }*/
+
+    @Override
+    public String toString() {
+        return "SubmittedPuzzleDto{" +
+                "correct=" + correct +
+                ", difficulty=" + difficulty +
+                ", topic=" + topic +
                 '}';
     }
 }
