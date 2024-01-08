@@ -20,4 +20,29 @@ public class ChatGptPrompts {
             ...
             *END*
             """;
+
+    public static final String CHAT_GPT_ANALYTICS_PROMPT_1 = """
+            User's answers:
+            %s
+                        
+            Analyze each of the these answers and briefly describe the correct answer with the aim of educating the user. Write the analysis in the following format in Croatian:
+                        
+            Correct answer
+            - information/brief description about the correct answer
+                        
+            Correct answer
+            - information/brief description about the correct answer
+                        
+            Correct answer
+            - information/brief description about the correct answer
+            ...
+                        
+            Example:
+            Nogomet
+            - Nogomet je sport u kojemu se dvije momčadi od 11 igrača nadmeću na pravokutnom igralištu travnate površine. Cilj igre jest postizanje više pogodaka od protivničke momčadi bilo kojim dijelom tijela osim rukom. Vratar je jedini igrač kojemu je dozvoljeno igrati i braniti gol rukama, doduše samo unutar jasno označenog pravokutnika ispred vlastitih vrata. Svim igračima dopušteno je proizvoljno kretanje po terenu, iako pravilo zaleđa ograničava napadačke kretnje ovisno o položaju lopte i protivničke obrane.
+                        
+            Rukomet
+            - Rukomet je ekipni sport s loptom, u kojem se natječu dvije momčadi sa 7 igrača na svakoj strani. Osnovni cilj igre jest loptom pogoditi označeni prostor gola. Lopta se između igrača dodaje rukama slično kao u košarci, ali s nešto manjom loptom te uz drugačija pravila vođenja lopte.
+                     
+            """;
 }

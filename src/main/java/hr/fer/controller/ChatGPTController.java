@@ -2,10 +2,13 @@ package hr.fer.controller;
 
 import hr.fer.common.ApiPaths;
 import hr.fer.common.OpenAIRequestConstants;
+import hr.fer.dto.AnalyticsDto;
+import hr.fer.dto.IncorrectAnswersDto;
 import hr.fer.dto.PuzzleDto;
 import hr.fer.dto.PuzzleTypeInfoDto;
 import hr.fer.dto.openai.ChatGPTRequest;
 import hr.fer.dto.openai.ChatGPTResponse;
+import hr.fer.services.AnalyzePuzzleService;
 import hr.fer.services.PuzzleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,10 +25,12 @@ public class ChatGPTController {
     private RestTemplate restTemplate;
 
     private final PuzzleService puzzleService;
+    private final AnalyzePuzzleService analyzePuzzleService;
     private final OpenAIRequestConstants openAIRequestConstants;
 
-    public ChatGPTController(PuzzleService puzzleService, OpenAIRequestConstants openAIRequestConstants) {
+    public ChatGPTController(PuzzleService puzzleService, AnalyzePuzzleService analyzePuzzleService, OpenAIRequestConstants openAIRequestConstants) {
         this.puzzleService = puzzleService;
+        this.analyzePuzzleService = analyzePuzzleService;
         this.openAIRequestConstants = openAIRequestConstants;
     }
 
@@ -59,5 +64,27 @@ public class ChatGPTController {
 
         PuzzleDto puzzle = puzzleService.createPuzzle(response, false);
         return puzzle;
+    }
+
+    @PostMapping(ApiPaths.ANALYZE_PUZZLE)
+    public AnalyticsDto analyzePuzzle(@RequestBody IncorrectAnswersDto incorrectAnswers) {
+        //ako je cijela krizaljka tocno rijesena, ne treba slati ChatGPT-u na nalizu
+        if(incorrectAnswers.isCorrect()) {
+            return new AnalyticsDto("Sve je ispravno riješeno. Bravo!");
+        }
+
+        String prompt = analyzePuzzleService.createPrompt(incorrectAnswers);
+
+        ChatGPTRequest request = new ChatGPTRequest(openAIRequestConstants.MODEL, prompt);
+        ChatGPTResponse response = null;
+        try {
+            response = restTemplate.postForObject(openAIRequestConstants.API_URL, request, ChatGPTResponse.class);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        AnalyticsDto analyticsResult = analyzePuzzleService.formatChatGPTResponse(response);
+
+        return analyticsResult;
     }
 }
