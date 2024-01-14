@@ -7,6 +7,8 @@ public class ApiPaths {
 
     public static final String GENERATE_TEST_PUZZLE = "/api/generateTestPuzzle";
     public static final String GENERATE_PUZZLE = "/api/generatePuzzle";
+    public static final String GENERATE_PUZZLE_BY_ID = "/api/generatePuzzle/by-id";
+    public static final String LIKE_PUZZLE_BY_ID = "/api/likePuzzle/by-id";
 
     public static final String SUBMIT_PUZZLE = "/api/submitPuzzle";
     public static final String ANALYZE_PUZZLE = "/api/analyzePuzzle";

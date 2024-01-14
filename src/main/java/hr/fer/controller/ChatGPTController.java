@@ -13,10 +13,7 @@ import hr.fer.services.AnalyzePuzzleService;
 import hr.fer.services.PuzzleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 @CrossOrigin
@@ -66,6 +63,16 @@ public class ChatGPTController {
 
         PuzzleDto puzzle = puzzleService.createPuzzle(response, false, this.getUser(), puzzleTypeInfo);
         return puzzle;
+    }
+
+    @GetMapping(ApiPaths.GENERATE_PUZZLE_BY_ID)
+    public PuzzleDto generatePuzzle(@RequestParam Long crosswordId){
+        return puzzleService.createPuzzleWithId(crosswordId);
+    }
+
+    @PostMapping(ApiPaths.LIKE_PUZZLE_BY_ID)
+    public void likePuzzle(@RequestParam Long crosswordId){
+        puzzleService.likePuzzleById(crosswordId, this.getUser().getId());
     }
 
     @PostMapping(ApiPaths.ANALYZE_PUZZLE)

@@ -13,6 +13,7 @@ import hr.fer.repository.UserCrosswordRepository;
 import hr.fer.repository.UserRepository;
 import hr.fer.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -92,6 +93,63 @@ public class PuzzleService {
 
         formatPuzzle(bestPuzzleIndex);
         return allPuzzles.get(bestPuzzleIndex);
+    }
+
+    public PuzzleDto createPuzzleWithId(Long crosswordId) {
+        allPuzzles.clear();
+        borderIndexList.clear();
+        generatedWordsAndClues.clear();
+
+        initializeEmptyPuzzle();
+
+        List<String> wordList = new ArrayList<>();
+        List<String[][]> listOfPuzzles = new ArrayList<>();
+        Optional<Crossword> crossword = crosswordRepository.findById(crosswordId);
+        if(!crossword.isPresent()){
+            throw new RuntimeException("No crossword present with that id");
+        }
+        generatedWordsAndClues = extractWordsAndClues(crossword.get().getCrosswordDefinition());
+
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User u = userRepository.findByUsername(user.getUsername());
+
+        UserCrossword uc = userCrosswordRepository.findByUserIdAndCrosswordId(u.getId(), crosswordId);
+
+        if(uc == null){
+            uc = UserCrossword.builder().user(u).crossword(crossword.get()).build();
+            userCrosswordRepository.save(uc);
+        }
+
+        for (int i = 0; i < 20; i++) {
+            initializeEmptyPuzzle();
+            wordList.clear();
+            generateWords(wordList);
+            if (wordList.size() < 10) {
+                wordList.clear();
+                generateTestWords(wordList);
+            }
+            Collections.shuffle(wordList);
+            listOfPuzzles.add(generatePuzzle(wordList));
+        }
+
+        String[][] bestPuzzle = evaluatePuzzles(listOfPuzzles);
+        printPuzzle(bestPuzzle);
+
+        mL = borderIndexList.get(bestPuzzleIndex)[0];
+        mT = borderIndexList.get(bestPuzzleIndex)[1];
+
+        formatPuzzle(bestPuzzleIndex);
+        return allPuzzles.get(bestPuzzleIndex);
+    }
+
+    public void likePuzzleById(Long crosswordId, Long userId) {
+        UserCrossword uc = userCrosswordRepository.findByUserIdAndCrosswordId(userId, crosswordId);
+        uc.setLiked(true);
+        userCrosswordRepository.save(uc);
+
+        Crossword c = crosswordRepository.getById(crosswordId);
+        c.setLikes(c.getLikes()+1);
+        crosswordRepository.save(c);
     }
 
     private static void initializeEmptyPuzzle() {
@@ -538,4 +596,6 @@ public class PuzzleService {
 
         return wordsAndClues;
     }
+
+
 }
