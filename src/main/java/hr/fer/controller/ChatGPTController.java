@@ -8,9 +8,11 @@ import hr.fer.dto.PuzzleDto;
 import hr.fer.dto.PuzzleTypeInfoDto;
 import hr.fer.dto.openai.ChatGPTRequest;
 import hr.fer.dto.openai.ChatGPTResponse;
+import hr.fer.security.UserPrincipal;
 import hr.fer.services.AnalyzePuzzleService;
 import hr.fer.services.PuzzleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,7 +48,7 @@ public class ChatGPTController {
             System.out.println(e);
         }
 
-        PuzzleDto puzzle = puzzleService.createPuzzle(response, true);
+        PuzzleDto puzzle = puzzleService.createPuzzle(response, true, this.getUser(), puzzleTypeInfo);
         return puzzle;
     }
 
@@ -62,7 +64,7 @@ public class ChatGPTController {
             System.out.println(e);
         }
 
-        PuzzleDto puzzle = puzzleService.createPuzzle(response, false);
+        PuzzleDto puzzle = puzzleService.createPuzzle(response, false, this.getUser(), puzzleTypeInfo);
         return puzzle;
     }
 
@@ -86,5 +88,9 @@ public class ChatGPTController {
         AnalyticsDto analyticsResult = analyzePuzzleService.formatChatGPTResponse(response);
 
         return analyticsResult;
+    }
+
+    private UserPrincipal getUser(){
+        return (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

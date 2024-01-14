@@ -1,8 +1,8 @@
 package hr.fer.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import hr.fer.common.PuzzleDifficulty;
-import hr.fer.common.PuzzleTopic;
+import hr.fer.entity.common.PuzzleDifficulty;
+import hr.fer.entity.common.PuzzleTopic;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
