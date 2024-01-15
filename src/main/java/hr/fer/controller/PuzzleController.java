@@ -1,18 +1,25 @@
 package hr.fer.controller;
 
 import hr.fer.common.ApiPaths;
+import hr.fer.dto.CrosswordDto;
 import hr.fer.dto.StatisticsDto;
 import hr.fer.dto.SubmittedPuzzleDto;
 import hr.fer.entity.common.Crossword;
 import hr.fer.entity.common.PuzzleDifficulty;
 import hr.fer.entity.common.PuzzleTopic;
+import hr.fer.entity.common.UserCrossword;
 import hr.fer.repository.CrosswordRepository;
 import hr.fer.repository.PuzzleDifficultyRepository;
 import hr.fer.repository.PuzzleTopicRepository;
+import hr.fer.repository.UserCrosswordRepository;
+import hr.fer.security.UserPrincipal;
 import hr.fer.services.StatisticsService;
 import hr.fer.services.SubmitPuzzleService;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin
@@ -27,14 +34,18 @@ public class PuzzleController {
 
     private final CrosswordRepository crosswordRepository;
 
-    public PuzzleController(SubmitPuzzleService submitPuzzleService, StatisticsService statisticsService, PuzzleTopicRepository puzzleTopicRepository, PuzzleDifficultyRepository puzzleDifficultyRepository, CrosswordRepository crosswordRepository) {
+    private final UserCrosswordRepository userCrosswordRepository;
+
+    public PuzzleController(SubmitPuzzleService submitPuzzleService, StatisticsService statisticsService,
+            PuzzleTopicRepository puzzleTopicRepository, PuzzleDifficultyRepository puzzleDifficultyRepository,
+            CrosswordRepository crosswordRepository, UserCrosswordRepository userCrosswordRepository) {
         this.submitPuzzleService = submitPuzzleService;
         this.statisticsService = statisticsService;
         this.puzzleDifficultyRepository = puzzleDifficultyRepository;
         this.puzzleTopicRepository = puzzleTopicRepository;
         this.crosswordRepository = crosswordRepository;
+        this.userCrosswordRepository = userCrosswordRepository;
     }
-
 
     @PostMapping(ApiPaths.SUBMIT_PUZZLE)
     public void submitPuzzle(@RequestBody SubmittedPuzzleDto submittedPuzzle) {
@@ -58,7 +69,24 @@ public class PuzzleController {
     }
 
     @GetMapping(ApiPaths.GET_PRELOADED_PUZZLES)
-    public List<Crossword> getPreloadedPuzzleList(){
-        return crosswordRepository.findAll();
+    public List<CrosswordDto> getPreloadedPuzzleList() {
+        List<Crossword> crosswords = crosswordRepository.findAll();
+        List<CrosswordDto> crosswordDtos = new ArrayList<>();
+
+        UserPrincipal currentUser = getUser();
+
+        for (Crossword crossword : crosswords) {
+            UserCrossword userCrossword = this.userCrosswordRepository.findByUserIdAndCrosswordId(currentUser.getId(),
+                    crossword.getId());
+            boolean liked = (userCrossword != null && userCrossword.isLiked()) ? true : false;
+
+            crosswordDtos.add(new CrosswordDto(crossword, liked));
+        }
+
+        return crosswordDtos;
+    }
+
+    private UserPrincipal getUser() {
+        return (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
