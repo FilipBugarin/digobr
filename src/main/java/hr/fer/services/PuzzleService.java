@@ -154,17 +154,18 @@ public class PuzzleService {
 
     public void likePuzzleById(Long crosswordId, Long userId) {
         UserCrossword uc = userCrosswordRepository.findByUserIdAndCrosswordId(userId, crosswordId);
-        
+        Crossword c = crosswordRepository.getById(crosswordId);
+
         if (uc.isLiked()){
             uc.setLiked(false);
+            c.setLikes(c.getLikes()-1);
         }
         else {
             uc.setLiked(true);
+            c.setLikes(c.getLikes()+1);
         }
         userCrosswordRepository.save(uc);
 
-        Crossword c = crosswordRepository.getById(crosswordId);
-        c.setLikes(c.getLikes()+1);
         crosswordRepository.save(c);
     }
 
