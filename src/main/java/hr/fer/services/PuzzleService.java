@@ -64,7 +64,7 @@ public class PuzzleService {
         return prompt;
     }
 
-    public PuzzleDto createPuzzle(ChatGPTResponse response, boolean testPuzzle, UserPrincipal user, PuzzleTopic puzzleTopic, PuzzleDifficulty puzzleDifficulty) {
+    public Long createPuzzle(ChatGPTResponse response, boolean testPuzzle, UserPrincipal user, PuzzleTopic puzzleTopic, PuzzleDifficulty puzzleDifficulty) {
         allPuzzles.clear();
         borderIndexList.clear();
         generatedWordsAndClues.clear();
@@ -75,10 +75,10 @@ public class PuzzleService {
         List<String[][]> listOfPuzzles = new ArrayList<>();
         List<String> questions = getQuestions(response);
         List<String> answers = getAnswers(response);
-        if (!testPuzzle) {
-            extractPuzzleDataFromResponse(response, user, puzzleTopic, puzzleDifficulty);
-        }
 
+        return extractPuzzleDataFromResponse(response, user, puzzleTopic, puzzleDifficulty);
+
+    /*
         for (int i = 0; i < 20; i++) {
             initializeEmptyPuzzle();
             wordList.clear();
@@ -102,7 +102,7 @@ public class PuzzleService {
         mT = borderIndexList.get(bestPuzzleIndex)[1];
 
         formatPuzzle(bestPuzzleIndex);
-        return allPuzzles.get(bestPuzzleIndex);
+        return allPuzzles.get(bestPuzzleIndex);*/
     }
 
     public PuzzleDto createPuzzleWithId(Long crosswordId) {
@@ -115,7 +115,7 @@ public class PuzzleService {
         List<String> wordList = new ArrayList<>();
         List<String[][]> listOfPuzzles = new ArrayList<>();
         Optional<Crossword> crossword = crosswordRepository.findById(crosswordId);
-        if(!crossword.isPresent()){
+        if (!crossword.isPresent()) {
             throw new RuntimeException("No crossword present with that id");
         }
         generatedWordsAndClues = extractWordsAndClues(crossword.get().getCrosswordDefinition());
@@ -125,7 +125,7 @@ public class PuzzleService {
 
         UserCrossword uc = userCrosswordRepository.findByUserIdAndCrosswordId(u.getId(), crosswordId);
 
-        if(uc == null){
+        if (uc == null) {
             uc = UserCrossword.builder().user(u).crossword(crossword.get()).build();
             userCrosswordRepository.save(uc);
         }
@@ -156,13 +156,12 @@ public class PuzzleService {
         UserCrossword uc = userCrosswordRepository.findByUserIdAndCrosswordId(userId, crosswordId);
         Crossword c = crosswordRepository.getById(crosswordId);
 
-        if (uc.isLiked()){
+        if (uc.isLiked()) {
             uc.setLiked(false);
-            c.setLikes(c.getLikes()-1);
-        }
-        else {
+            c.setLikes(c.getLikes() - 1);
+        } else {
             uc.setLiked(true);
-            c.setLikes(c.getLikes()+1);
+            c.setLikes(c.getLikes() + 1);
         }
         userCrosswordRepository.save(uc);
 
@@ -176,11 +175,11 @@ public class PuzzleService {
         }
     }
 
-    public PuzzleDifficulty getPuzzleDifficulty(long id){
+    public PuzzleDifficulty getPuzzleDifficulty(long id) {
         return this.puzzleDifficultyRepository.getById(id);
     }
 
-    public PuzzleTopic getPuzzleTopic(long id){
+    public PuzzleTopic getPuzzleTopic(long id) {
         return this.puzzleTopicRepository.getById(id);
     }
 
@@ -231,7 +230,7 @@ public class PuzzleService {
     }
 
 
-    private void extractPuzzleDataFromResponse(ChatGPTResponse response, UserPrincipal user, PuzzleTopic puzzleTopic, PuzzleDifficulty puzzleDifficulty) {
+    private Long extractPuzzleDataFromResponse(ChatGPTResponse response, UserPrincipal user, PuzzleTopic puzzleTopic, PuzzleDifficulty puzzleDifficulty) {
 
         String responseData = null;
         Map<String, String> wordsAndClues;
@@ -257,6 +256,8 @@ public class PuzzleService {
         userCrosswordRepository.save(uc);
 
         generatedWordsAndClues = wordsAndClues;
+
+        return c.getId();
 
     }
 

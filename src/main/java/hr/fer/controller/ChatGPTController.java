@@ -36,7 +36,7 @@ public class ChatGPTController {
     }
 
     @PostMapping(ApiPaths.GENERATE_TEST_PUZZLE)
-    public PuzzleDto generateTestPuzzle(@RequestBody PuzzleTypeInfoDto puzzleTypeInfo) {
+    public Long generateTestPuzzle(@RequestBody PuzzleTypeInfoDto puzzleTypeInfo) {
         PuzzleTopic puzzleTopic = puzzleService.getPuzzleTopic(puzzleTypeInfo.getTopicId());
         PuzzleDifficulty puzzleDifficulty = puzzleService.getPuzzleDifficulty(puzzleTypeInfo.getDifficultyId());
 
@@ -50,12 +50,11 @@ public class ChatGPTController {
             System.out.println(e);
         }
 
-        PuzzleDto puzzle = puzzleService.createPuzzle(response, true, this.getUser(), puzzleTopic, puzzleDifficulty);
-        return puzzle;
+        return puzzleService.createPuzzle(response, true, this.getUser(), puzzleTopic, puzzleDifficulty);
     }
 
     @PostMapping(ApiPaths.GENERATE_PUZZLE)
-    public PuzzleDto generatePuzzle(@RequestBody PuzzleTypeInfoDto puzzleTypeInfo) {
+    public Long generatePuzzle(@RequestBody PuzzleTypeInfoDto puzzleTypeInfo) {
         PuzzleTopic puzzleTopic = puzzleService.getPuzzleTopic(puzzleTypeInfo.getTopicId());
         PuzzleDifficulty puzzleDifficulty = puzzleService.getPuzzleDifficulty(puzzleTypeInfo.getDifficultyId());
 
@@ -69,8 +68,7 @@ public class ChatGPTController {
             System.out.println(e);
         }
 
-        PuzzleDto puzzle = puzzleService.createPuzzle(response, false, this.getUser(), puzzleTopic, puzzleDifficulty);
-        return puzzle;
+        return puzzleService.createPuzzle(response, false, this.getUser(), puzzleTopic, puzzleDifficulty);
     }
 
     @GetMapping(ApiPaths.GENERATE_PUZZLE_BY_ID)
