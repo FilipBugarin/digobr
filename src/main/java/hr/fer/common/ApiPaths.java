@@ -18,4 +18,7 @@ public class ApiPaths {
     public static final String GET_PUZZLE_DIFFICULTIES = "/api/difficulties";
     public static final String GET_PUZZLE_TOPICS = "/api/topics";
     public static final String GET_PRELOADED_PUZZLES = "/api/preloaded-puzzles";
+
+    public static final String GET_CURRENT_USER = "/api/getMe";
+
 }
