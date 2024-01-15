@@ -1,9 +1,11 @@
 package hr.fer.services;
 
-import hr.fer.common.ApiPaths;
 import hr.fer.common.ChatGptPrompts;
 import hr.fer.common.OpenAIRequestConstants;
-import hr.fer.dto.*;
+import hr.fer.dto.AnalyticsDto;
+import hr.fer.dto.AnswersDto;
+import hr.fer.dto.SubmittedPuzzleDto;
+import hr.fer.dto.SuggestedCrossword;
 import hr.fer.dto.openai.ChatGPTRequest;
 import hr.fer.dto.openai.ChatGPTResponse;
 import hr.fer.entity.common.Crossword;
@@ -16,8 +18,6 @@ import hr.fer.repository.PuzzleTopicRepository;
 import hr.fer.repository.UserCrosswordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
