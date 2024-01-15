@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface PuzzleTopicRepository extends JpaRepository<PuzzleTopic, Long> {
 
     PuzzleTopic findByTopicName(String TopicName);
+
+    PuzzleTopic findById(long id);
 }

@@ -8,6 +8,8 @@ import hr.fer.dto.PuzzleDto;
 import hr.fer.dto.PuzzleTypeInfoDto;
 import hr.fer.dto.openai.ChatGPTRequest;
 import hr.fer.dto.openai.ChatGPTResponse;
+import hr.fer.entity.common.PuzzleDifficulty;
+import hr.fer.entity.common.PuzzleTopic;
 import hr.fer.security.UserPrincipal;
 import hr.fer.services.AnalyzePuzzleService;
 import hr.fer.services.PuzzleService;
@@ -35,7 +37,10 @@ public class ChatGPTController {
 
     @PostMapping(ApiPaths.GENERATE_TEST_PUZZLE)
     public PuzzleDto generateTestPuzzle(@RequestBody PuzzleTypeInfoDto puzzleTypeInfo) {
-        String prompt = puzzleService.createPrompt(puzzleTypeInfo);
+        PuzzleTopic puzzleTopic = puzzleService.getPuzzleTopic(puzzleTypeInfo.getTopicId());
+        PuzzleDifficulty puzzleDifficulty = puzzleService.getPuzzleDifficulty(puzzleTypeInfo.getDifficultyId());
+
+        String prompt = puzzleService.createPrompt(puzzleTopic, puzzleDifficulty);
 
         ChatGPTRequest request = new ChatGPTRequest(openAIRequestConstants.MODEL, prompt);
         ChatGPTResponse response = null;
@@ -45,13 +50,16 @@ public class ChatGPTController {
             System.out.println(e);
         }
 
-        PuzzleDto puzzle = puzzleService.createPuzzle(response, true, this.getUser(), puzzleTypeInfo);
+        PuzzleDto puzzle = puzzleService.createPuzzle(response, true, this.getUser(), puzzleTopic, puzzleDifficulty);
         return puzzle;
     }
 
     @PostMapping(ApiPaths.GENERATE_PUZZLE)
     public PuzzleDto generatePuzzle(@RequestBody PuzzleTypeInfoDto puzzleTypeInfo) {
-        String prompt = puzzleService.createPrompt(puzzleTypeInfo);
+        PuzzleTopic puzzleTopic = puzzleService.getPuzzleTopic(puzzleTypeInfo.getTopicId());
+        PuzzleDifficulty puzzleDifficulty = puzzleService.getPuzzleDifficulty(puzzleTypeInfo.getDifficultyId());
+
+        String prompt = puzzleService.createPrompt(puzzleTopic, puzzleDifficulty);
 
         ChatGPTRequest request = new ChatGPTRequest(openAIRequestConstants.MODEL, prompt);
         ChatGPTResponse response = null;
@@ -61,7 +69,7 @@ public class ChatGPTController {
             System.out.println(e);
         }
 
-        PuzzleDto puzzle = puzzleService.createPuzzle(response, false, this.getUser(), puzzleTypeInfo);
+        PuzzleDto puzzle = puzzleService.createPuzzle(response, false, this.getUser(), puzzleTopic, puzzleDifficulty);
         return puzzle;
     }
 

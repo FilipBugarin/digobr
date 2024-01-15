@@ -1,8 +1,6 @@
 package hr.fer.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import hr.fer.entity.common.PuzzleDifficulty;
-import hr.fer.entity.common.PuzzleTopic;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +13,8 @@ import lombok.NoArgsConstructor;
 public class PuzzleTypeInfoDto {
     //TODO: po potrebi deserijalizirati enum
 
-    @JsonProperty("difficulty")
-    private PuzzleDifficulty difficulty;
-    @JsonProperty("topic")
-    private PuzzleTopic topic;
+    @JsonProperty("difficultyId")
+    private long difficultyId;
+    @JsonProperty("topicId")
+    private long topicId;
 }

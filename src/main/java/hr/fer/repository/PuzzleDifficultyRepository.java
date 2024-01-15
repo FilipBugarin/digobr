@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface PuzzleDifficultyRepository extends JpaRepository<PuzzleDifficulty, Long> {
 
     PuzzleDifficulty findByDescription(String description);
+
+    PuzzleDifficulty findById(long id);
 }

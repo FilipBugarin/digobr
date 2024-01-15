@@ -7,8 +7,12 @@ import hr.fer.dto.Word;
 import hr.fer.dto.openai.ChatGPTResponse;
 import hr.fer.entity.auth.User;
 import hr.fer.entity.common.Crossword;
+import hr.fer.entity.common.PuzzleDifficulty;
+import hr.fer.entity.common.PuzzleTopic;
 import hr.fer.entity.common.UserCrossword;
 import hr.fer.repository.CrosswordRepository;
+import hr.fer.repository.PuzzleDifficultyRepository;
+import hr.fer.repository.PuzzleTopicRepository;
 import hr.fer.repository.UserCrosswordRepository;
 import hr.fer.repository.UserRepository;
 import hr.fer.security.UserPrincipal;
@@ -32,6 +36,12 @@ public class PuzzleService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PuzzleDifficultyRepository puzzleDifficultyRepository;
+
+    @Autowired
+    private PuzzleTopicRepository puzzleTopicRepository;
+
     public static final int GRID_SIZE = 100;
     public static String[][] puzzle = new String[GRID_SIZE][GRID_SIZE];
     //1=horizontal 2=vertical
@@ -45,16 +55,16 @@ public class PuzzleService {
     public static int bestPuzzleIndex;
     public static Map<String, String> generatedWordsAndClues = new LinkedHashMap<>();
 
-    public String createPrompt(PuzzleTypeInfoDto puzzleTypeInfo) {
+    public String createPrompt(PuzzleTopic puzzleTopic, PuzzleDifficulty puzzleDifficulty) {
 
         String prompt = String.format(ChatGptPrompts.CHAT_GPT_PROMPT_1,
-                puzzleTypeInfo.getTopic().getTopicName(), puzzleTypeInfo.getDifficulty().getDescription());
+                puzzleTopic.getTopicName(), puzzleDifficulty.getDescription());
         System.out.println("PROMPT:");
         System.out.println(prompt);
         return prompt;
     }
 
-    public PuzzleDto createPuzzle(ChatGPTResponse response, boolean testPuzzle, UserPrincipal user, PuzzleTypeInfoDto puzzleTypeInfo) {
+    public PuzzleDto createPuzzle(ChatGPTResponse response, boolean testPuzzle, UserPrincipal user, PuzzleTopic puzzleTopic, PuzzleDifficulty puzzleDifficulty) {
         allPuzzles.clear();
         borderIndexList.clear();
         generatedWordsAndClues.clear();
@@ -66,7 +76,7 @@ public class PuzzleService {
         List<String> questions = getQuestions(response);
         List<String> answers = getAnswers(response);
         if (!testPuzzle) {
-            extractPuzzleDataFromResponse(response, user, puzzleTypeInfo);
+            extractPuzzleDataFromResponse(response, user, puzzleTopic, puzzleDifficulty);
         }
 
         for (int i = 0; i < 20; i++) {
@@ -159,6 +169,14 @@ public class PuzzleService {
         }
     }
 
+    public PuzzleDifficulty getPuzzleDifficulty(long id){
+        return this.puzzleDifficultyRepository.getById(id);
+    }
+
+    public PuzzleTopic getPuzzleTopic(long id){
+        return this.puzzleTopicRepository.getById(id);
+    }
+
     private static List<String> getQuestions(ChatGPTResponse response) {
         //TODO: izvaditi pitanja iz response
         return new ArrayList<>();
@@ -206,7 +224,7 @@ public class PuzzleService {
     }
 
 
-    private void extractPuzzleDataFromResponse(ChatGPTResponse response, UserPrincipal user, PuzzleTypeInfoDto puzzleTypeInfo) {
+    private void extractPuzzleDataFromResponse(ChatGPTResponse response, UserPrincipal user, PuzzleTopic puzzleTopic, PuzzleDifficulty puzzleDifficulty) {
 
         String responseData = null;
         Map<String, String> wordsAndClues;
@@ -225,7 +243,7 @@ public class PuzzleService {
 
         User u = userRepository.findByUsername(user.getUsername());
 
-        Crossword c = Crossword.builder().crosswordDefinition(responseData).topic(puzzleTypeInfo.getTopic()).difficulty(puzzleTypeInfo.getDifficulty()).build();
+        Crossword c = Crossword.builder().crosswordDefinition(responseData).topic(puzzleTopic).difficulty(puzzleDifficulty).build();
         crosswordRepository.save(c);
 
         UserCrossword uc = UserCrossword.builder().user(u).crossword(c).build();
