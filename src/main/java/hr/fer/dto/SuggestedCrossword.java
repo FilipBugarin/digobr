@@ -1,20 +1,20 @@
 package hr.fer.dto;
 
+import hr.fer.entity.common.PuzzleDifficulty;
+import hr.fer.entity.common.PuzzleTopic;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class SubmittedPuzzleDto {
+public class SuggestedCrossword {
 
-    private Long userId;
-    private Long crosswordId;
-    private List<AnswersDto> incorrectAnswers;
-    private List<AnswersDto> correctAnswers;
+    private PuzzleTopic puzzleTopic;
+
+    private PuzzleDifficulty puzzleDifficulty;
+
 }

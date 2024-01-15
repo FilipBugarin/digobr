@@ -1,6 +1,7 @@
 package hr.fer.controller;
 
 import hr.fer.common.ApiPaths;
+import hr.fer.dto.AnalyticsDto;
 import hr.fer.dto.CrosswordDto;
 import hr.fer.dto.StatisticsDto;
 import hr.fer.dto.SubmittedPuzzleDto;
@@ -13,6 +14,7 @@ import hr.fer.repository.PuzzleDifficultyRepository;
 import hr.fer.repository.PuzzleTopicRepository;
 import hr.fer.repository.UserCrosswordRepository;
 import hr.fer.security.UserPrincipal;
+import hr.fer.services.AnalyzePuzzleService;
 import hr.fer.services.StatisticsService;
 import hr.fer.services.SubmitPuzzleService;
 
@@ -35,21 +37,24 @@ public class PuzzleController {
     private final CrosswordRepository crosswordRepository;
 
     private final UserCrosswordRepository userCrosswordRepository;
+    private final AnalyzePuzzleService analyzePuzzleService;
 
     public PuzzleController(SubmitPuzzleService submitPuzzleService, StatisticsService statisticsService,
             PuzzleTopicRepository puzzleTopicRepository, PuzzleDifficultyRepository puzzleDifficultyRepository,
-            CrosswordRepository crosswordRepository, UserCrosswordRepository userCrosswordRepository) {
+            CrosswordRepository crosswordRepository, UserCrosswordRepository userCrosswordRepository, AnalyzePuzzleService analyzePuzzleService) {
         this.submitPuzzleService = submitPuzzleService;
         this.statisticsService = statisticsService;
         this.puzzleDifficultyRepository = puzzleDifficultyRepository;
         this.puzzleTopicRepository = puzzleTopicRepository;
         this.crosswordRepository = crosswordRepository;
         this.userCrosswordRepository = userCrosswordRepository;
+        this.analyzePuzzleService = analyzePuzzleService;
     }
 
     @PostMapping(ApiPaths.SUBMIT_PUZZLE)
-    public void submitPuzzle(@RequestBody SubmittedPuzzleDto submittedPuzzle) {
+    public AnalyticsDto submitPuzzle(@RequestBody SubmittedPuzzleDto submittedPuzzle) {
         submitPuzzleService.submitPuzzle(submittedPuzzle);
+        return analyzePuzzleService.analyzePuzzle(submittedPuzzle);
     }
 
     @GetMapping(ApiPaths.GET_STATISTICS)

@@ -15,4 +15,6 @@ public class AnalyticsDto {
     @JsonProperty("analysis")
     private String analysis;
 
+    private SuggestedCrossword suggestedCrossword;
+
 }
