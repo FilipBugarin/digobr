@@ -1,5 +1,6 @@
 package hr.fer.entity.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import hr.fer.entity.auth.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,6 +35,7 @@ public class Crossword {
     @JoinColumn(name = "puzzle_topic_id")
     private PuzzleTopic topic;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "crossword", cascade = CascadeType.ALL)
     private Set<UserCrossword> userCrosswords = new HashSet<>();
 
