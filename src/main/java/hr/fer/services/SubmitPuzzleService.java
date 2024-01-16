@@ -16,5 +16,7 @@ public class SubmitPuzzleService {
         UserCrossword uc = userCrosswordRepository.findByUserIdAndCrosswordId(submittedPuzzle.getUserId(), submittedPuzzle.getCrosswordId());
         uc.setCorrectAnswers(submittedPuzzle.getCorrectAnswers().size());
         uc.setIncorectAnswers(submittedPuzzle.getIncorrectAnswers().size());
+
+        userCrosswordRepository.save(uc);
     }
 }

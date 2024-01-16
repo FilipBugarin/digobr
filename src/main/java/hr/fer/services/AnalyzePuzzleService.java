@@ -142,7 +142,17 @@ public class AnalyzePuzzleService {
 
         for (int i = 1; i < performanceHistory.size(); i++) {
             int currentCorrectAnswers = performanceHistory.get(i).getCorrectAnswers();
+            int currentIncorrectAnswers = performanceHistory.get(i).getIncorectAnswers();
             int previousCorrectAnswers = performanceHistory.get(i - 1).getCorrectAnswers();
+            int previousIncorrectAnswers = performanceHistory.get(i - 1).getIncorectAnswers();
+
+            int sumCurrentAnswers = currentCorrectAnswers + currentIncorrectAnswers;
+            int sumpreviousAnswers = previousCorrectAnswers + previousIncorrectAnswers;
+
+            if(currentCorrectAnswers/sumCurrentAnswers < 0.5 || previousCorrectAnswers/sumpreviousAnswers < 0.5){
+                consecutiveImprovements = 0;
+                continue;
+            }
 
             if (currentCorrectAnswers >= previousCorrectAnswers) {
                 // Check if there's a consecutive improvement
@@ -153,7 +163,8 @@ public class AnalyzePuzzleService {
             }
 
             // You can adjust the threshold based on your requirements
-            if (consecutiveImprovements >= 2) {
+            // if set to 1 then after 2 good crossword solving it will suggest harder difficulty
+            if (consecutiveImprovements >= 1) {
                 // Consider it as an improving trend
                 return true;
             }
