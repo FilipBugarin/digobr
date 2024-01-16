@@ -55,9 +55,9 @@ public class PuzzleService {
     public static int bestPuzzleIndex;
     public static Map<String, String> generatedWordsAndClues = new LinkedHashMap<>();
 
-    public String createPrompt(PuzzleTopic puzzleTopic, PuzzleDifficulty puzzleDifficulty) {
+    public String createPrompt(PuzzleTopic puzzleTopic, PuzzleDifficulty puzzleDifficulty, String promptTemplate) {
 
-        String prompt = String.format(ChatGptPrompts.CHAT_GPT_PROMPT_1,
+        String prompt = String.format(promptTemplate,
                 puzzleTopic.getTopicName(), puzzleDifficulty.getDescription());
         System.out.println("PROMPT:");
         System.out.println(prompt);

@@ -1,6 +1,7 @@
 package hr.fer.controller;
 
 import hr.fer.common.ApiPaths;
+import hr.fer.common.ChatGptPrompts;
 import hr.fer.common.OpenAIRequestConstants;
 import hr.fer.dto.PuzzleDto;
 import hr.fer.dto.PuzzleTypeInfoDto;
@@ -35,7 +36,7 @@ public class ChatGPTController {
         PuzzleTopic puzzleTopic = puzzleService.getPuzzleTopic(puzzleTypeInfo.getTopicId());
         PuzzleDifficulty puzzleDifficulty = puzzleService.getPuzzleDifficulty(puzzleTypeInfo.getDifficultyId());
 
-        String prompt = puzzleService.createPrompt(puzzleTopic, puzzleDifficulty);
+        String prompt = puzzleService.createPrompt(puzzleTopic, puzzleDifficulty, ChatGptPrompts.CHAT_GPT_PROMPT_1);
 
         ChatGPTRequest request = new ChatGPTRequest(openAIRequestConstants.MODEL, prompt);
         ChatGPTResponse response = null;
@@ -53,16 +54,16 @@ public class ChatGPTController {
         PuzzleTopic puzzleTopic = puzzleService.getPuzzleTopic(puzzleTypeInfo.getTopicId());
         PuzzleDifficulty puzzleDifficulty = puzzleService.getPuzzleDifficulty(puzzleTypeInfo.getDifficultyId());
 
-        String prompt = puzzleService.createPrompt(puzzleTopic, puzzleDifficulty);
+        String userPrompt = puzzleService.createPrompt(puzzleTopic, puzzleDifficulty, ChatGptPrompts.GENERATE_CROSSWORD_HUMAN_PROMPT);
+        String systemPrompt = ChatGptPrompts.GENERATE_CROSSWORD_SYSTEM_PROMPT;
 
-        ChatGPTRequest request = new ChatGPTRequest(openAIRequestConstants.MODEL, prompt);
+        ChatGPTRequest request = new ChatGPTRequest(openAIRequestConstants.MODEL, userPrompt, systemPrompt);
         ChatGPTResponse response = null;
         try {
             response = restTemplate.postForObject(openAIRequestConstants.API_URL, request, ChatGPTResponse.class);
         } catch (Exception e) {
             System.out.println(e);
         }
-
         return puzzleService.createPuzzle(response, false, this.getUser(), puzzleTopic, puzzleDifficulty);
     }
 

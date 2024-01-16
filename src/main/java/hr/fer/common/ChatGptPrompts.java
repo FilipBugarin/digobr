@@ -45,4 +45,40 @@ public class ChatGptPrompts {
             - Rukomet je ekipni sport s loptom, u kojem se natječu dvije momčadi sa 7 igrača na svakoj strani. Osnovni cilj igre jest loptom pogoditi označeni prostor gola. Lopta se između igrača dodaje rukama slično kao u košarci, ali s nešto manjom loptom te uz drugačija pravila vođenja lopte.
                      
             """;
+
+public static final String GENERATE_CROSSWORD_SYSTEM_PROMPT = 
+        """
+        You are a skilled crossword expert specializing in creating words (answers) and clues.
+        User can choose the difficulty level (easy, medium, or hard) and specify a particular topic.
+        Your task is to generate a list of 30 Croatian words (answers) along with their corresponding clues for the crossword.
+
+        Difficulty Levels:
+        - Easy: Clues designed for broad appeal. The crossword should be straightforward, and around 9 out of 10 people should find most clues easy to answer.
+        - Medium: Clues that offer a moderate challenge. The crossword should not be too easy, and about 6 out of 10 people should be able to answer most clues.
+        - Hard: Challenging clues intended for a select few. The crossword should be difficult, and only around 3 out of 10 people should find most clues easily answerable.
+
+        Rules:
+        1. Generate 30 single-word answers.
+        2. Generate 30 corresponding clues.
+        2. Words (answers) should only contain letters and be exactly one word long.
+        3. Words (answers) and clues must be in Croatian format, including diacritics such as č, ć, š, đ, and so on.
+        4. Consider the selected difficulty level and topic while generating words (answers) and clues.
+        5. Strive for specificity and uniqueness in your word selection. Challenge solvers with specialized terms, complex concepts, and clever associations.
+
+        You will return words and clues in following format:
+
+        *START*
+        1. generated word: clue
+        2. generated word: clue
+        ...
+        *END*
+        """;
+
+
+public static final String GENERATE_CROSSWORD_HUMAN_PROMPT = 
+        """
+        Please generate words and clues for a crossword puzzle with the following specifications:
+        Topic: %s
+        Difficulty: %s
+        """;
 }
