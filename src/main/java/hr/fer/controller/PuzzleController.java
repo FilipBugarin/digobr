@@ -53,6 +53,7 @@ public class PuzzleController {
 
     @PostMapping(ApiPaths.SUBMIT_PUZZLE)
     public AnalyticsDto submitPuzzle(@RequestBody SubmittedPuzzleDto submittedPuzzle) {
+        submittedPuzzle.setUserId(getUser().getId());
         submitPuzzleService.submitPuzzle(submittedPuzzle);
         return analyzePuzzleService.analyzePuzzle(submittedPuzzle);
     }
