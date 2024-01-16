@@ -21,4 +21,6 @@ public class ApiPaths {
 
     public static final String GET_CURRENT_USER = "/api/getMe";
 
+    public static final String GET_HINT = "/api/hint";
+
 }

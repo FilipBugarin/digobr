@@ -81,4 +81,20 @@ public static final String GENERATE_CROSSWORD_HUMAN_PROMPT =
         Topic: %s
         Difficulty: %s
         """;
+
+public static final String HINT_PROMPT = """
+        Word (answer): %s
+        Clue: %s
+
+        You are provided with a word and its corresponding clue, and your task is to generate a helpful hint for that word.
+        Your role is to enhance the crossword-solving experience by providing hint that guide users toward the correct solution.
+        Ensure that your hint is clear, concise and informative but not overly revealing, striking a balance between challenging and helpful.
+        Hint should be in Croatian language.
+
+        Example:
+        Word: Karate
+        Clue: Borilački sport iz Japana
+
+        Your answer: Sport koji se ističe preciznim udarcima i tehnikama tijela    
+        """;
 }
