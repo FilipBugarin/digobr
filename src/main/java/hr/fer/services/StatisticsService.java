@@ -15,7 +15,7 @@ public class StatisticsService {
         statistics.setTotalSolved(12);
         statistics.setTotalCorrect(9);
         statistics.setTotalIncorrect(3);
-        statistics.setTotalPercentage("0.75%");
+        statistics.setTotalPercentage("75%");
 
         return statistics;
     }
