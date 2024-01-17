@@ -149,6 +149,12 @@ public class AnalyzePuzzleService {
             int sumCurrentAnswers = currentCorrectAnswers + currentIncorrectAnswers;
             int sumpreviousAnswers = previousCorrectAnswers + previousIncorrectAnswers;
 
+
+            if(sumCurrentAnswers == 0 || sumpreviousAnswers == 0){
+                consecutiveImprovements = 0;
+                continue;
+            }
+
             if(currentCorrectAnswers/sumCurrentAnswers < 0.5 || previousCorrectAnswers/sumpreviousAnswers < 0.5){
                 consecutiveImprovements = 0;
                 continue;
