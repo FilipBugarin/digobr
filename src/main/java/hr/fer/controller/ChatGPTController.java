@@ -3,10 +3,7 @@ package hr.fer.controller;
 import hr.fer.common.ApiPaths;
 import hr.fer.common.ChatGptPrompts;
 import hr.fer.common.OpenAIRequestConstants;
-import hr.fer.dto.HintDto;
-import hr.fer.dto.PuzzleDto;
-import hr.fer.dto.PuzzleTypeInfoDto;
-import hr.fer.dto.WordClueDto;
+import hr.fer.dto.*;
 import hr.fer.dto.openai.ChatGPTRequest;
 import hr.fer.dto.openai.ChatGPTResponse;
 import hr.fer.entity.common.PuzzleDifficulty;
@@ -91,7 +88,7 @@ public class ChatGPTController {
     }
 
     @GetMapping(ApiPaths.GENERATE_PUZZLE_BY_ID)
-    public PuzzleDto generatePuzzle(@RequestParam Long crosswordId){
+    public PuzzleWithInfoDto generatePuzzle(@RequestParam Long crosswordId){
         return puzzleService.createPuzzleWithId(crosswordId);
     }
 

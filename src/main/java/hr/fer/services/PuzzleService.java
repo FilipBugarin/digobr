@@ -3,6 +3,7 @@ package hr.fer.services;
 import hr.fer.common.ChatGptPrompts;
 import hr.fer.dto.PuzzleDto;
 import hr.fer.dto.PuzzleTypeInfoDto;
+import hr.fer.dto.PuzzleWithInfoDto;
 import hr.fer.dto.Word;
 import hr.fer.dto.openai.ChatGPTResponse;
 import hr.fer.entity.auth.User;
@@ -105,7 +106,7 @@ public class PuzzleService {
         return allPuzzles.get(bestPuzzleIndex);*/
     }
 
-    public PuzzleDto createPuzzleWithId(Long crosswordId) {
+    public PuzzleWithInfoDto createPuzzleWithId(Long crosswordId) {
         allPuzzles.clear();
         borderIndexList.clear();
         generatedWordsAndClues.clear();
@@ -149,7 +150,12 @@ public class PuzzleService {
         mT = borderIndexList.get(bestPuzzleIndex)[1];
 
         formatPuzzle(bestPuzzleIndex);
-        return allPuzzles.get(bestPuzzleIndex);
+
+        PuzzleDto p = allPuzzles.get(bestPuzzleIndex);
+        PuzzleTypeInfoDto i = PuzzleTypeInfoDto.builder()
+                .topicId(crossword.get().getTopic().getId())
+                .difficultyId(crossword.get().getDifficulty().getId()).build();
+        return new PuzzleWithInfoDto().builder().puzzleDto(p).puzzleInfo(i).build();
     }
 
     public void likePuzzleById(Long crosswordId, Long userId) {
