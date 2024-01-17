@@ -59,8 +59,8 @@ public class PuzzleController {
     }
 
     @GetMapping(ApiPaths.GET_STATISTICS)
-    public StatisticsDto getUserStatistics(@RequestParam String username) {
-        StatisticsDto statistics = statisticsService.getUserStatistics(username);
+    public StatisticsDto getUserStatistics(@RequestParam long userId) {
+        StatisticsDto statistics = statisticsService.getUserStatistics(userId);
         return statistics;
     }
 

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class StatisticsService {
 
-    public StatisticsDto getUserStatistics(String username) {
+    public StatisticsDto getUserStatistics(long userId) {
         StatisticsDto statistics = new StatisticsDto();
 
         //todo: dohvati statistiku za korisnika iz baze
