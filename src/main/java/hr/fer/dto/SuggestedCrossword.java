@@ -13,8 +13,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class SuggestedCrossword {
 
-    private PuzzleTopic puzzleTopic;
+    private long puzzleTopic;
 
-    private PuzzleDifficulty puzzleDifficulty;
+    private long puzzleDifficulty;
 
 }

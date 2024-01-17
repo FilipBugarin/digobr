@@ -66,10 +66,7 @@ public class AnalyzePuzzleService {
                 suggestedTopic = c.getTopic().getId();
             }
 
-            PuzzleTopic pt = puzzleTopicRepository.findById(suggestedTopic).get();
-            PuzzleDifficulty pd = puzzleDifficultyRepository.findById(Long.valueOf(suggestedDifficulty)).get();
-
-            SuggestedCrossword suggestedCrossword = SuggestedCrossword.builder().puzzleTopic(pt).puzzleDifficulty(pd).build();
+            SuggestedCrossword suggestedCrossword = SuggestedCrossword.builder().puzzleTopic(suggestedTopic).puzzleDifficulty(suggestedDifficulty).build();
 
             return new AnalyticsDto("Sve je ispravno riješeno. Bravo!", suggestedCrossword);
         }
@@ -122,10 +119,7 @@ public class AnalyzePuzzleService {
         }
         //=====================================
 
-        PuzzleTopic pt = puzzleTopicRepository.findById(suggestedTopic).get();
-        PuzzleDifficulty pd = puzzleDifficultyRepository.findById(Long.valueOf(suggestedDifficulty)).get();
-
-        return SuggestedCrossword.builder().puzzleTopic(pt).puzzleDifficulty(pd).build();
+        return SuggestedCrossword.builder().puzzleTopic(suggestedTopic).puzzleDifficulty(suggestedDifficulty).build();
     }
 
     public List<UserCrossword> getUserPerformanceHistory(Long userId) {
