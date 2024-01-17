@@ -1,9 +1,12 @@
 package hr.fer.controller;
 
 import hr.fer.common.ApiPaths;
+import hr.fer.common.ChatGptPrompts;
 import hr.fer.common.OpenAIRequestConstants;
+import hr.fer.dto.HintDto;
 import hr.fer.dto.PuzzleDto;
 import hr.fer.dto.PuzzleTypeInfoDto;
+import hr.fer.dto.WordClueDto;
 import hr.fer.dto.openai.ChatGPTRequest;
 import hr.fer.dto.openai.ChatGPTResponse;
 import hr.fer.entity.common.PuzzleDifficulty;
@@ -35,7 +38,7 @@ public class ChatGPTController {
         PuzzleTopic puzzleTopic = puzzleService.getPuzzleTopic(puzzleTypeInfo.getTopicId());
         PuzzleDifficulty puzzleDifficulty = puzzleService.getPuzzleDifficulty(puzzleTypeInfo.getDifficultyId());
 
-        String prompt = puzzleService.createPrompt(puzzleTopic, puzzleDifficulty);
+        String prompt = puzzleService.createPrompt(puzzleTopic, puzzleDifficulty, ChatGptPrompts.CHAT_GPT_PROMPT_1);
 
         ChatGPTRequest request = new ChatGPTRequest(openAIRequestConstants.MODEL, prompt);
         ChatGPTResponse response = null;
@@ -53,8 +56,22 @@ public class ChatGPTController {
         PuzzleTopic puzzleTopic = puzzleService.getPuzzleTopic(puzzleTypeInfo.getTopicId());
         PuzzleDifficulty puzzleDifficulty = puzzleService.getPuzzleDifficulty(puzzleTypeInfo.getDifficultyId());
 
-        String prompt = puzzleService.createPrompt(puzzleTopic, puzzleDifficulty);
+        String userPrompt = puzzleService.createPrompt(puzzleTopic, puzzleDifficulty, ChatGptPrompts.GENERATE_CROSSWORD_HUMAN_PROMPT);
+        String systemPrompt = ChatGptPrompts.GENERATE_CROSSWORD_SYSTEM_PROMPT;
 
+        ChatGPTRequest request = new ChatGPTRequest(openAIRequestConstants.MODEL, userPrompt, systemPrompt);
+        ChatGPTResponse response = null;
+        try {
+            response = restTemplate.postForObject(openAIRequestConstants.API_URL, request, ChatGPTResponse.class);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return puzzleService.createPuzzle(response, false, this.getUser(), puzzleTopic, puzzleDifficulty);
+    }
+
+    @PostMapping(ApiPaths.GET_HINT)
+    public HintDto getHint(@RequestBody WordClueDto wordClueDto) {
+        String prompt = String.format(ChatGptPrompts.HINT_PROMPT, wordClueDto.getWord(), wordClueDto.getClue());
         ChatGPTRequest request = new ChatGPTRequest(openAIRequestConstants.MODEL, prompt);
         ChatGPTResponse response = null;
         try {
@@ -63,7 +80,14 @@ public class ChatGPTController {
             System.out.println(e);
         }
 
-        return puzzleService.createPuzzle(response, false, this.getUser(), puzzleTopic, puzzleDifficulty);
+        HintDto hintDto = new HintDto();
+        if (response.getChoices().isEmpty()) {
+            hintDto.setHint("Hint nije dostupan");
+        } else {
+            hintDto.setHint(response.getChoices().get(0).getMessage().getContent());
+        }
+
+        return hintDto;
     }
 
     @GetMapping(ApiPaths.GENERATE_PUZZLE_BY_ID)
