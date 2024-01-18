@@ -60,8 +60,8 @@ public class PuzzleController {
     }
 
     @GetMapping(ApiPaths.GET_STATISTICS)
-    public StatisticsDto getUserStatistics(@RequestParam long userId) {
-        StatisticsDto statistics = statisticsService.getUserStatistics(userId);
+    public StatisticsDto getUserStatistics() {
+        StatisticsDto statistics = statisticsService.getUserStatistics(getUser().getId());
         return statistics;
     }
 
