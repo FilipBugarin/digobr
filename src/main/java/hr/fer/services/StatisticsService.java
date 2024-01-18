@@ -1,22 +1,51 @@
 package hr.fer.services;
 
 import hr.fer.dto.StatisticsDto;
+import hr.fer.entity.common.UserStatistics;
+import hr.fer.repository.UserStatisticsRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class StatisticsService {
 
+    private final UserStatisticsRepository userStatisticsRepository;
+
+    public StatisticsService(UserStatisticsRepository userStatisticsRepository) {
+        this.userStatisticsRepository = userStatisticsRepository;
+    }
+
     public StatisticsDto getUserStatistics(long userId) {
-        StatisticsDto statistics = new StatisticsDto();
+        Optional<UserStatistics> userStatisticsOptional = Optional.ofNullable(userStatisticsRepository.findByUserId(userId));
 
-        //todo: dohvati statistiku za korisnika iz baze
+        if (userStatisticsOptional.isPresent()) {
+            UserStatistics us = userStatisticsOptional.get();
+            return new StatisticsDto().builder()
+                    .totalSolved(us.getTotalSolved())
+                    .totalCorrect(us.getTotalCorrect())
+                    .totalIncorrect(us.getTotalIncorrect())
+                    .totalPercentage(calculatePercentage(us))
+                    .build();
+        } else {
+            UserStatistics us = new UserStatistics().builder().userId(userId).build();
+            userStatisticsRepository.save(us);
 
-        //privremeni mock podaci dok ne spojimo bazu
-        statistics.setTotalSolved(12);
-        statistics.setTotalCorrect(9);
-        statistics.setTotalIncorrect(3);
-        statistics.setTotalPercentage("75%");
+            return new StatisticsDto().builder()
+                    .totalSolved(us.getTotalSolved())
+                    .totalCorrect(us.getTotalCorrect())
+                    .totalIncorrect(us.getTotalIncorrect())
+                    .totalPercentage(calculatePercentage(us))
+                    .build();
+        }
+    }
 
-        return statistics;
+    private String calculatePercentage(UserStatistics us) {
+        if(us.getTotalSolved() == 0) {
+            return "-";
+        } else {
+            double p = (double) us.getTotalCorrect() / us.getTotalSolved() * 100;
+            return String.format("%.2f%%", p);
+        }
     }
 }

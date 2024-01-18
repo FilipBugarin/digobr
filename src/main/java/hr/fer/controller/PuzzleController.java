@@ -55,6 +55,7 @@ public class PuzzleController {
     public AnalyticsDto submitPuzzle(@RequestBody SubmittedPuzzleDto submittedPuzzle) {
         submittedPuzzle.setUserId(getUser().getId());
         submitPuzzleService.submitPuzzle(submittedPuzzle);
+        submitPuzzleService.updateUserStatistics(submittedPuzzle);
         return analyzePuzzleService.analyzePuzzle(submittedPuzzle);
     }
 
