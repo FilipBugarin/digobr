@@ -25,7 +25,7 @@ public class ChatGptPrompts {
             User's answers:
             %s
                         
-            Analyze each of the these answers and briefly describe the correct answer with the aim of educating the user. Write the analysis in the following format in Croatian:
+            Analyze each of the these answers and briefly describe the correct answer with the aim of educating the user. It is mandatory to write analysis for each provided user's answer. Write the analysis in the following format in Croatian:
                         
             Correct answer
             - information/brief description about the correct answer

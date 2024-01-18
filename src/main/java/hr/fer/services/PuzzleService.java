@@ -118,6 +118,8 @@ public class PuzzleService {
         }
         generatedWordsAndClues = extractWordsAndClues(crossword.get().getCrosswordDefinition());
 
+        Map<String, String> generatedWordsAndCluesBackup = getBackupPuzzle(crossword.get().getTopic().getId());
+
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User u = userRepository.findByUsername(user.getUsername());
 
@@ -133,8 +135,11 @@ public class PuzzleService {
             wordList.clear();
             generateWords(wordList);
             if (wordList.size() < 10) {
+                System.out.println("---backup puzzle---");
                 wordList.clear();
-                generateTestWords(wordList);
+                generatedWordsAndClues = generatedWordsAndCluesBackup;
+                generateWords(wordList);
+                //generateTestWords(wordList);
             }
             Collections.shuffle(wordList);
             listOfPuzzles.add(generatePuzzle(wordList));
@@ -155,6 +160,11 @@ public class PuzzleService {
                 .isLiked(uc.isLiked())
                 .build();
         return new PuzzleWithInfoDto().builder().puzzleDto(p).puzzleInfo(i).build();
+    }
+
+    private Map<String, String> getBackupPuzzle(Long topicId) {
+        List<Crossword> backupCrossword = crosswordRepository.findByTopicId(topicId);
+        return extractWordsAndClues(backupCrossword.get(0).getCrosswordDefinition());
     }
 
     public void likePuzzleById(Long crosswordId, Long userId) {
