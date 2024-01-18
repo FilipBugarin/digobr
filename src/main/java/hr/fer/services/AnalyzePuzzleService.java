@@ -77,6 +77,8 @@ public class AnalyzePuzzleService {
         ChatGPTResponse response = null;
         try {
             response = restTemplate.postForObject(openAIRequestConstants.API_URL, request, ChatGPTResponse.class);
+            System.out.println("CHATGPT ANALYTICS RESPONSE:");
+            System.out.println(response);
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -200,6 +202,8 @@ public class AnalyzePuzzleService {
         if (response.getChoices().isEmpty()) {
             analyticsResult.setAnalysis("Analiza rješenja trenutno nije moguća.");
         } else {
+            System.out.println("FORMATED ANALYSIS:");
+            System.out.println(response.getChoices().get(0).getMessage().getContent());
             analyticsResult.setAnalysis(response.getChoices().get(0).getMessage().getContent());
         }
         return analyticsResult;
