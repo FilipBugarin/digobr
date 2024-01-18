@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PuzzleWithInfoDto {
 
-    private PuzzleTypeInfoDto puzzleInfo;
+    private PuzzleTypeInfoWithLikedDto puzzleInfo;
     private PuzzleDto puzzleDto;
 }
