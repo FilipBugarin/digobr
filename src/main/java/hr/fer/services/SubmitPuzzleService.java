@@ -41,7 +41,13 @@ public class SubmitPuzzleService {
             }
             userStatisticsRepository.save(userStatistics);
         } else {
-            UserStatistics us = new UserStatistics().builder().userId(submittedPuzzle.getUserId()).build();
+            boolean isCorrect = submittedPuzzle.getIncorrectAnswers().isEmpty();
+
+            UserStatistics us = new UserStatistics().builder()
+                    .totalSolved(1)
+                    .totalCorrect(isCorrect ? 1 : 0)
+                    .totalIncorrect(isCorrect ? 0 : 1)
+                    .userId(submittedPuzzle.getUserId()).build();
             userStatisticsRepository.save(us);
         }
     }
